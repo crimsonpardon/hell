@@ -1,0 +1,16 @@
+{
+  "clientId": "YOUR_APPLICATION_ID",
+  "activity": {
+    "details": "Building cool stuff",
+    "state": "Coding in Node.js",
+    "largeImageKey": "large_image",
+    "largeImageText": "My Project",
+    "smallImageKey": "small_image",
+    "smallImageText": "Online",
+    "showTimer": true,
+    "buttons": [
+      { "label": "GitHub", "url": "https://github.com/yourname" },
+      { "label": "YouTube", "url": "https://youtube.com/@yourchannel" }
+    ]
+  }
+}
