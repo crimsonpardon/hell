@@ -1,48 +1,47 @@
 const fs = require("fs");
 const path = require("path");
-const { Client } = require("@xhayper/discord-rpc");
+const { Client, GatewayIntentBits, ActivityType } = require("discord.js");
 
 const configPath = path.join(__dirname, "..", "config.json");
 if (!fs.existsSync(configPath)) {
-  console.error("config.json not found. Copy config.example.json to config.json and edit it.");
+  console.error("config.json not found. Run: cp config.example.json config.json");
   process.exit(1);
 }
-
 const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
-if (!config.clientId || config.clientId === "YOUR_APPLICATION_ID") {
-  console.error("Set your Discord Application ID as clientId in config.json.");
+if (!config.token || config.token === "YOUR_BOT_TOKEN") {
+  console.error("Put your BOT token in config.json.");
   process.exit(1);
 }
 
-function buildActivity(a) {
-  const activity = {};
-  for (const key of ["details", "state", "largeImageKey", "largeImageText", "smallImageKey", "smallImageText"]) {
-    if (a[key]) activity[key] = a[key];
-  }
-  if (a.showTimer) activity.startTimestamp = new Date();
-  if (Array.isArray(a.buttons) && a.buttons.length) {
-    activity.buttons = a.buttons.slice(0, 2); // Discord allows max 2 buttons
-  }
-  activity.instance = false;
-  return activity;
+const types = {
+  playing: ActivityType.Playing,
+  watching: ActivityType.Watching,
+  listening: ActivityType.Listening,
+  streaming: ActivityType.Streaming,
+  competing: ActivityType.Competing,
+};
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+let i = 0;
+
+function applyActivity() {
+  const a = config.activities[i % config.activities.length];
+  const activity = { name: a.name, type: types[(a.type || "playing").toLowerCase()] ?? ActivityType.Playing };
+  if (a.url) activity.url = a.url;
+  client.user.setPresence({ status: config.status || "online", activities: [activity] });
+  console.log(`Activity: ${a.type} ${a.name}`);
+  i++;
 }
 
-const client = new Client({ clientId: config.clientId });
-
-client.on("ready", async () => {
-  console.log(`Connected as ${client.user.username}`);
-  await client.user.setActivity(buildActivity(config.activity));
-  console.log("Activity set. Press Ctrl+C to stop.");
+client.once("clientReady", () => {
+  console.log(`Logged in as ${client.user.tag}`);
+  applyActivity();
+  if (config.activities.length > 1) {
+    setInterval(applyActivity, Math.max(15, config.rotateSeconds || 30) * 1000);
+  }
 });
 
-client.on("disconnected", () => console.log("Disconnected from Discord."));
-
-client.login().catch((err) => {
-  console.error("Could not connect. Is the Discord desktop app running?\n", err.message);
+client.login(config.token).catch((e) => {
+  console.error("Login failed:", e.message);
   process.exit(1);
-});
-
-process.on("SIGINT", async () => {
-  try { await client.user?.clearActivity(); await client.destroy(); } catch {}
-  process.exit(0);
 });
