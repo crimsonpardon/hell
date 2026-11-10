@@ -1,16 +1,11 @@
 {
-  "clientId": "YOUR_APPLICATION_ID",
-  "activity": {
-    "details": "Building cool stuff",
-    "state": "Coding in Node.js",
-    "largeImageKey": "large_image",
-    "largeImageText": "My Project",
-    "smallImageKey": "small_image",
-    "smallImageText": "Online",
-    "showTimer": true,
-    "buttons": [
-      { "label": "GitHub", "url": "https://github.com/yourname" },
-      { "label": "YouTube", "url": "https://youtube.com/@yourchannel" }
-    ]
-  }
+  "token": "YOUR_BOT_TOKEN",
+  "status": "online",
+  "rotateSeconds": 30,
+  "activities": [
+    { "type": "Playing", "name": "with code" },
+    { "type": "Watching", "name": "my YouTube channel" },
+    { "type": "Listening", "name": "lo-fi beats" },
+    { "type": "Streaming", "name": "Live coding", "url": "https://twitch.tv/yourname" }
+  ]
 }
